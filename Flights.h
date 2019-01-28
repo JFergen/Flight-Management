@@ -6,7 +6,7 @@ public:
 	Flights();
 	~Flights();
 	void addFlight();
-	//void editFlight();
+	void editFlight();
 	void deleteFlight();
 	int searchFlight(int fID);
 	void printFlights();

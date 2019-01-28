@@ -1,5 +1,7 @@
-#include "Crews.h"
 #include <fstream>
+#include <iterator>
+#include <typeinfo>
+#include "Crews.h"
 
 Crews::Crews()
 {
@@ -16,8 +18,12 @@ void Crews::addCrew()
 {
 	string cName;
 	int cID;
-	string cJob;
+	int cJob;
 	string cStat;
+	string pRating;
+	int totHours;
+	int cabPos;
+	Crew *temp;
 
 	cout << "Enter crew member name:";
 	getline(cin, cName);
@@ -26,19 +32,46 @@ void Crews::addCrew()
 	cin >> cID;
 	cin.ignore();
 
-	cout << "Enter crew member job (pilot, copilot, cabin):";
-	cin >> cJob;
-	cin.ignore();
-
 	cout << "Enter status of crew member (available, leave, sick):";
 	cin >> cStat;
 
-	Crew tmpCrew(cName, cID);
+	cout << "Enter job of crew member (1 for Pilot, 2 for CoPilot, 3 for Cabin):";
+	cin >> cJob;
 
-	tmpCrew.SetJob(cJob);
-	tmpCrew.SetStatus(cStat);
+	switch (cJob)
+	{
+	case 1:
+		cout << "Enter 5 character Pilot rating:";
+		cin >> pRating;
 
-	crewList.push_back(tmpCrew);
+		cout << "Enter Pilot's total flying hours:";
+		cin >> totHours;
+
+		temp = new Pilot(pRating, totHours, cName, cID, cStat);
+		break;
+	case 2:
+		cout << "Enter 4 character CoPilot rating:";
+		cin >> pRating;
+
+		cout << "Enter CoPilot's total flying hours:";
+		cin >> totHours;
+
+		temp = new CoPilot(pRating, totHours, cName, cID, cStat);
+		break;
+	case 3:
+		cout << "Enter position of cabin member (1 for First Class, 2 for Business Class, 3 for Economy Front, 4 for Economy Rear, 5 for Lead):";
+		cin >> cabPos;
+
+		temp = new Cabin(cabPos, cName, cID, cStat);
+		break;
+	default:
+		cout << "Invalid Job. Try again." << endl;
+		cout << "Enter job of crew member (1 for Pilot, 2 for CoPilot, 3 for Cabin):";
+		cin >> cJob;
+		break;
+	}
+
+	crewList.push_back(temp);
 	numCrew++;
 }
 
@@ -46,7 +79,7 @@ void Crews::editCrew()
 {
 	int cID;
 	string newName;
-	string newJob;
+	int newJob;
 	string newStatus;
 	int choice = 0;
 
@@ -72,19 +105,25 @@ void Crews::editCrew()
 		case 1:
 			cout << "Enter new name:";
 			getline(cin, newName);
-			crewList[index].SetName(newName);
+			crewList[index]->SetName(newName);
 			cout << "Name has been updated" << endl;
 			break;
 		case 2:
-			cout << "Enter new job (pilot, copilot, cabin):";
+			cout << "Enter new job (1 for pilot, 2 for copilot, 3 for cabin):";
 			cin >> newJob;
+
+			/*switch (newJob)
+			{
+			case 1:
+				// Delete Old one and add new one with required info
+			}
 			crewList[index].SetJob(newJob);
 			cout << "Job has been updated" << endl;
-			break;
+			break;*/
 		case 3:
 			cout << "Enter new status of crew member (available, leave, sick):";
 			cin >> newStatus;
-			crewList[index].SetStatus(newStatus);
+			crewList[index]->SetStatus(newStatus);
 			cout << "Status has been updated" << endl;
 			break;
 		default:
@@ -107,7 +146,7 @@ int Crews::searchCrew(int i)
 
 	for (index; index < numCrew; index++)
 	{
-		if (crewList[index].GetID() == i)
+		if (crewList[index]->GetID() == i)
 		{
 			return index;
 		}
@@ -147,13 +186,36 @@ void Crews::deleteCrew()
 
 void Crews::printCrew()
 {
-	for (int i = 0; i < numCrew; i++)
+	Crew *temp;
+	int i = 1;
+	for (auto it = crewList.begin(); it != crewList.end(); it++)
 	{
-		cout << "Crew member #" << i + 1 << endl;
-		cout << "Name: " << crewList[i].GetName() << endl;
-		cout << "ID: " << crewList[i].GetID() << endl;
-		cout << "Job: " << crewList[i].GetJob() << endl;
-		cout << "Status: " << crewList[i].GetStatus() << endl << endl;
+		temp = *it;
+		cout << "Crew member #" << i << endl;
+		cout << "Name: " << temp->GetName() << endl;
+		cout << "ID: " << temp->GetID() << endl;
+		cout << "Status: " << temp->GetStatus() << endl;
+
+		if (typeid(*temp) == typeid (Pilot))
+		{
+			Pilot *tempPi = dynamic_cast<Pilot*> (temp);
+			cout << "Pilot rating: " << tempPi->GetRating() << endl; 
+			cout << "Total Hours: " << tempPi->GetHours() << endl << endl;
+		}
+
+		else if (typeid(*temp) == typeid (CoPilot))
+		{
+			CoPilot *tempPi = dynamic_cast<CoPilot*> (temp);
+			cout << "CoPilot rating: " << tempPi->GetRating() << endl;
+			cout << "Total Hours: " << tempPi->GetHours() << endl << endl;
+		}
+
+		else if (typeid(*temp) == typeid (Cabin))
+		{
+			Cabin *tempCab = dynamic_cast<Cabin*> (temp);
+			cout << "Cabin position: " << tempCab->GetPos() << endl << endl;
+		}
+		i++;
 	}
 }
 
@@ -164,15 +226,39 @@ void Crews::printCrewByID()
 	cout << "Enter crew member ID:";
 	cin >> cID;
 
+	Crew *temp;
 	if (searchCrew(cID) != -1)
 	{
 		int index = searchCrew(cID);
 
+		auto it = (crewList.begin() + index);
+		temp = *it;
+
 		cout << "Crew member found. Printing information:" << endl << endl;
-		cout << "Name: " << crewList[index].GetName() << endl;
-		cout << "ID: " << crewList[index].GetID() << endl;
-		cout << "Job: " << crewList[index].GetJob() << endl;
-		cout << "Status: " << crewList[index].GetStatus() << endl << endl;
+		cout << "Name: " << crewList[index]->GetName() << endl;
+		cout << "ID: " << crewList[index]->GetID() << endl;
+		cout << "Status: " << crewList[index]->GetStatus() << endl;
+
+		if (typeid(*temp) == typeid (Pilot))
+		{
+			Pilot *tempPi = dynamic_cast<Pilot*> (temp);
+			cout << "Pilot rating: " << tempPi->GetRating() << endl;
+			cout << "Total Hours: " << tempPi->GetHours() << endl << endl;
+		}
+
+		else if (typeid(*temp) == typeid (CoPilot))
+		{
+			CoPilot *tempPi = dynamic_cast<CoPilot*> (temp);
+			cout << "CoPilot rating: " << tempPi->GetRating() << endl;
+			cout << "Total Hours: " << tempPi->GetHours() << endl << endl;
+		}
+
+		else if (typeid(*temp) == typeid (Cabin))
+		{
+			Cabin *tempCab = dynamic_cast<Cabin*> (temp);
+			cout << "Cabin position: " << tempCab->GetPos() << endl << endl;
+		}
+
 		return;
 	}
 	else
@@ -189,12 +275,31 @@ void Crews::storeCrew()
 
 	fout << numCrew << endl;
 
-	for (int i = 0; i < numCrew; i++)
+	Crew *temp;
+	for (auto it = crewList.begin(); it != crewList.end(); ++it)
 	{
-		fout << crewList[i].GetName() << endl;
-		fout << crewList[i].GetID() << " " << crewList[i].GetJob() << " " << crewList[i].GetStatus() << endl;
-	}
+		temp = *it;
+		fout << temp->GetName() << endl;
+		fout << temp->GetID() << " " << temp->GetStatus() << " ";
 
+		if (typeid(*temp) == typeid (Pilot))
+		{
+			Pilot *tempPi = dynamic_cast<Pilot*> (temp);
+			fout << "1 " << tempPi->GetRating() << " " << tempPi->GetHours() << endl;
+		}
+
+		else if (typeid(*temp) == typeid (CoPilot))
+		{
+			CoPilot *tempCoPi = dynamic_cast<CoPilot*> (temp);
+			fout << "2 " << tempCoPi->GetRating() << " " << tempCoPi->GetHours() << endl;
+		}
+
+		else if (typeid(*temp) == typeid (Cabin))
+		{
+			Cabin *tempCab = dynamic_cast<Cabin*> (temp);
+			fout << "3 " << tempCab->GetPosNum() << endl;
+		}
+	}
 	fout.close();
 }
 
@@ -204,8 +309,11 @@ void Crews::loadCrew()
 
 	string name;
 	int ID;
-	string j;
+	int job;
 	string pStatus;
+	string rating;
+	int hours;
+	int pos;
 
 	fin.open("crews.dat");
 
@@ -215,30 +323,51 @@ void Crews::loadCrew()
 	for (int i = 0; i < numCrew; i++)
 	{
 		getline(fin, name);
-		fin >> ID >> j >> pStatus;
+		fin >> ID >> pStatus >> job;
 		fin.ignore();
 
-		Crew tmp(name, ID);
-		tmp.SetJob(j);
-		tmp.SetStatus(pStatus);
-		
-		crewList.push_back(tmp);
-	}
+		if (job == 1)
+		{
+			fin >> rating >> hours;
+			fin.ignore();
+			Pilot *newPilot = new Pilot(rating, hours, name, ID, pStatus);
+			crewList.push_back(newPilot);
+		}
 
+		else if (job == 2)
+		{
+			cout << "CoPilot" << endl;
+			fin >> rating >> hours;
+			fin.ignore();
+			CoPilot *newCoPilot = new CoPilot(rating, hours, name, ID, pStatus);
+			crewList.push_back(newCoPilot);
+		}
+
+		else if (job == 3)
+		{
+			cout << "Cabin" << endl;
+			fin >> pos;
+			fin.ignore();
+			Cabin *newCab = new Cabin(pos, name, ID, pStatus);
+			crewList.push_back(newCab);
+		}
+	}
 	fin.close();
 }
 
 int Crews::getAPilot()
 {
-	for (int i = 0; i < numCrew; i++)
+	Crew *temp;
+	for (auto it = crewList.begin(); it != crewList.end(); ++it)
 	{
-		if ((crewList[i].GetJob() == "pilot") && (crewList[i].GetStatus() == "available"))
+		temp = *it;
+		if (typeid(*temp) == typeid (Pilot) && (temp->GetStatus() == "available"))
 		{
-			crewList[i].SetStatus("leave");
-			return crewList[i].GetID();
+			temp->SetStatus("leave");
+			return temp->GetID();
 		}
 
-		if (i == numCrew)
+		if (it == crewList.end())
 		{
 			return -1;
 		}
@@ -249,15 +378,17 @@ int Crews::getAPilot()
 
 int Crews::getACoPilot()
 {
-	for (int i = 0; i < numCrew; i++)
+	Crew *temp;
+	for (auto it = crewList.begin(); it != crewList.end(); ++it)
 	{
-		if ((crewList[i].GetJob() == "copilot") && (crewList[i].GetStatus() == "available"))
+		temp = *it;
+		if (typeid(*temp) == typeid (CoPilot) && (temp->GetStatus() == "available"))
 		{
-			crewList[i].SetStatus("leave");
-			return crewList[i].GetID();
+			temp->SetStatus("leave");
+			return temp->GetID();
 		}
 
-		if (i == numCrew)
+		if (it == crewList.end())
 		{
 			cout << "No copilots available at this time." << endl << endl;
 
@@ -268,66 +399,75 @@ int Crews::getACoPilot()
 	return -1;
 }
 
-/*int* Crews::getACrew()
+int Crews::getCrew1()
 {
-	int numCabin = 0;
-	int crew1;
-	int crew2;
-	int crew3;
-	int threeCrew[3];
-	int *exitValue;
-	int exitV = -1;
-	exitValue = &exitV;
-
-	for (int i = 0; i < numCrew; i++)
+	Crew *temp;
+	for (auto it = crewList.begin(); it != crewList.end(); ++it)
 	{
-		if ((crewList[i].GetJob() == "cabin") && (crewList[i].GetStatus() == "available"))
+		temp = *it;
+		if (typeid(*temp) == typeid (Cabin) && (temp->GetStatus() == "available"))
 		{
-			crewList[i].SetStatus("leave");
-			if (numCabin == 2)
-			{
-				crew3 = crewList[i].GetID();
-				numCabin++;
-			}
-			else if (numCabin == 1)
-			{
-				crew2 = crewList[i].GetID();
-				numCabin++;
-			}
-			else if (numCabin == 0)
-			{
-				crew1 = crewList[i].GetID();
-				numCabin++;
-			}
+			temp->SetStatus("leave");
+			return temp->GetID();
+		}
 
-			if (numCabin == 3)
-			{
-				threeCrew[0] = crew1;
-				threeCrew[1] = crew2;
-				threeCrew[2] = crew3;
-				return threeCrew;
-			}
+		if (it == crewList.end())
+		{
+			cout << "Not enough cabin crew available at this time." << endl << endl;
+
+			return -1;
 		}
 	}
 
-	switch (numCabin)
+	return -1;
+}
+
+int Crews::getCrew2()
+{
+	Crew *temp;
+	for (auto it = crewList.begin(); it != crewList.end(); ++it)
 	{
-	case 1:
-		crewList[searchCrew(crew1)].SetStatus("available");
-		break;
-	case 2:
-		crewList[searchCrew(crew1)].SetStatus("available");
-		crewList[searchCrew(crew2)].SetStatus("available");
-		break;
-	case 3:
-		crewList[searchCrew(crew1)].SetStatus("available");
-		crewList[searchCrew(crew2)].SetStatus("available");
-		crewList[searchCrew(crew3)].SetStatus("available");
-		break;
+		temp = *it;
+		if (typeid(*temp) == typeid (Cabin) && (temp->GetStatus() == "available"))
+		{
+			temp->SetStatus("leave");
+			return temp->GetID();
+		}
+
+		if (it == crewList.end())
+		{
+			cout << "Not enough cabin crew available at this time." << endl << endl;
+
+			return -1;
+		}
 	}
-	
-	return exitValue;
-}*/
+
+	return -1;
+}
+
+int Crews::getCrew3()
+{
+	Crew *temp;
+	for (auto it = crewList.begin(); it != crewList.end(); ++it)
+	{
+		temp = *it;
+		if (typeid(*temp) == typeid (Cabin) && (temp->GetStatus() == "available"))
+		{
+			temp->SetStatus("leave");
+			return temp->GetID();
+		}
+
+		if (it == crewList.end())
+		{
+			cout << "Not enough cabin crew available at this time." << endl << endl;
+
+			return -1;
+		}
+	}
+
+	return -1;
+}
+
 
 void Crews::fixPilot(int ID)
 {
@@ -335,7 +475,11 @@ void Crews::fixPilot(int ID)
 
 	index = searchCrew(ID);
 
-	crewList[index].SetStatus("available");
+	Crew *temp;
+	auto it = (crewList.begin() + index);
+	temp = *it;
+
+	temp->SetStatus("available");
 	
 	return;
 }
@@ -346,7 +490,69 @@ void Crews::fixCoPilot(int ID)
 
 	index = searchCrew(ID);
 
-	crewList[index].SetStatus("available");
+	Crew *temp;
+	auto it = (crewList.begin() + index);
+	temp = *it;
+
+	temp->SetStatus("available");
 
 	return;
+}
+
+void Crews::fixCrew1(int ID)
+{
+	int index;
+
+	index = searchCrew(ID);
+
+	Crew *temp;
+	auto it = (crewList.begin() + index);
+	temp = *it;
+
+	temp->SetStatus("available");
+
+	return;
+}
+
+void Crews::fixCrew2(int ID)
+{
+	int index;
+
+	index = searchCrew(ID);
+
+	Crew *temp;
+	auto it = (crewList.begin() + index);
+	temp = *it;
+
+	temp->SetStatus("available");
+
+	return;
+}
+
+void Crews::fixCrew3(int ID)
+{
+	int index;
+
+	index = searchCrew(ID);
+
+	Crew *temp;
+	auto it = (crewList.begin() + index);
+	temp = *it;
+
+	temp->SetStatus("available");
+
+	return;
+}
+
+string Crews::getCrewStatus(int ID)
+{
+	int index;
+
+	index = searchCrew(ID);
+
+	Crew *temp;
+	auto it = (crewList.begin() + index);
+	temp = *it;
+
+	return temp->GetStatus();
 }

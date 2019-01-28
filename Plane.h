@@ -29,3 +29,4 @@ class Plane
 		int range;
 		status planeStatus;
 };
+

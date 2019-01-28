@@ -12,7 +12,7 @@ int main()
 	cout << "+----------------------------------------------+" << endl;
 	cout << "|       Computer Science and Engineering       |" << endl;
 	cout << "|        CSCE 1040.003 - Computer Science II   |" << endl;
-	cout << "| 	  	   Homework 4                  |" << endl;
+	cout << "| 	  	   Homework 5                  |" << endl;
 	cout << "|       Joseph Fergen josephfergen@my.unt.edu  |" << endl;
 	cout << "+----------------------------------------------+" << endl << endl << endl;
 
@@ -157,6 +157,7 @@ int main()
 					cout << "7 - Load Flights (Also done automatically at start)" << endl;
 					cout << "8 - Store Flights (Also done automatically at end)" << endl;
 					cout << "9 - Search Flights specifically by plane, crew member, or status" << endl;
+					cout << "10 - Delete completed flights" << endl;
 
 					cout << "Enter choice:";
 					cin >> choice;
@@ -172,7 +173,7 @@ int main()
 						break;
 					case 3:
 						cout << "EDITING FLIGHT" << endl;
-						//flights.editFlight();
+						flights.editFlight();
 						break;
 					case 4:
 						cout << "DELETING FLIGHT" << endl;
@@ -200,6 +201,10 @@ int main()
 					case 9:
 						cout << "SEARCHING SPECIFIC FLIGHTS" << endl;
 						flights.printSomeFlights();
+						break;
+					case 10:
+						cout << "DELETING FINISHED FLIGHTS" << endl;
+						flights.deleteFinishedFlights();
 						break;
 					}
 				} while (choice != 1);

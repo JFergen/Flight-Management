@@ -14,7 +14,7 @@ Crews.o: Crews.cpp Crews.h
 	gcc -c Crews.cpp
 
 Flight.o: Flight.cpp Flight.h
-	gcc -c Flight.cpp
+	gcc  -c Flight.cpp
 
 Flights.o: Flights.cpp Flight.h Crews.h Planes.h
 	gcc -c Flights.cpp

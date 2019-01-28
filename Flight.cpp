@@ -14,7 +14,6 @@ Flight::Flight()
 	startPort = " ";
 	endPort = " ";
 	numPassengers = -1;
-//	crewID = crewIDs;
 }
 
 Flight::Flight(int fID, string pID, int piID, int cpiID, int c1, int c2, int c3, int sTime,
@@ -32,7 +31,6 @@ Flight::Flight(int fID, string pID, int piID, int cpiID, int c1, int c2, int c3,
 	startPort = sPort;
 	endPort = ePort;
 	numPassengers = nP;
-	
 }
 
 void Flight::SetFlightID(int fID)
@@ -59,6 +57,21 @@ void Flight::SetCrewsID(int c1, int c2, int c3)
 {
 	crewID[0] = c1;
 	crewID[1] = c2;
+	crewID[2] = c3;
+}
+
+void Flight::SetCrew1ID(int c1)
+{
+	crewID[0] = c1;
+}
+
+void Flight::SetCrew2ID(int c2)
+{
+	crewID[1] = c2;
+}
+
+void Flight::SetCrew3ID(int c3)
+{
 	crewID[2] = c3;
 }
 

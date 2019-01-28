@@ -16,6 +16,9 @@ public:
 	void SetPilotID(int piID);
 	void SetCoPilotID(int cpiID);
 	void SetCrewsID(int c1, int c2, int c3);
+	void SetCrew1ID(int c1);
+	void SetCrew2ID(int c2);
+	void SetCrew3ID(int c3);
 	void SetStartTime(int sTime);
 	void SetEndTime(int eTime);
 	void SetStartPort(string sPort);
@@ -40,7 +43,6 @@ private:
 	string planeID;
 	int pilotID;
 	int coPilotID;
-//	int *crewID;
 	int crewID[3];
 	int startTime;
 	int endTime;
@@ -49,3 +51,4 @@ private:
 	int numPassengers;
 	status flightStatus;
 };
+

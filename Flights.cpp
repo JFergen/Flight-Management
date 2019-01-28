@@ -6,6 +6,7 @@
 extern Planes planes;
 extern Crews crew;
 
+
 Flights::Flights()
 {
 	numFlights = 0;
@@ -23,43 +24,67 @@ void Flights::addFlight()
 	string tailNum = planes.getPlane();
 	int pilotID = crew.getAPilot();
 	int coPilotID = crew.getACoPilot();
-//	int *crewID = crew.getACrew();
+	int crewIDs[3];
+	crewIDs[0] = crew.getCrew1();
+	crewIDs[1] = crew.getCrew2();
+	crewIDs[2] = crew.getCrew3();
 	//int year;
 	string sAP;
 	string eAP;
 	int numPassengers = 0;
 	string fStatus;
 
-	if (tailNum == "none")
-	{
-		cout << "No planes avilable at this time." << endl << endl;
-		return;
-	}
-
-
 	if (pilotID == -1)
 	{
 		cout << "No pilot avilable at this time." << endl << endl;
-		planes.fixPlane(tailNum);
 		return;
 	}
 
 	if (coPilotID == -1)
 	{
 		cout << "No copilot avilable at this time." << endl << endl;
-		planes.fixPlane(tailNum);
 		crew.fixPilot(pilotID);
 		return;
 	}
 
-/*	if (*crew.getACrew() == -1)
+	if (crewIDs[0] == -1)
 	{
 		cout << "Not enough cabin members avilable at this time." << endl << endl;
-		planes.fixPlane(tailNum);
 		crew.fixPilot(pilotID);
 		crew.fixCoPilot(coPilotID);
 		return;
-	}*/
+	}
+
+	if (crewIDs[1] == -1)
+	{
+		cout << "Not enough cabin members avilable at this time." << endl << endl;
+		crew.fixPilot(pilotID);
+		crew.fixCoPilot(coPilotID);
+		crew.fixCrew1(crewIDs[0]);
+		return;
+	}
+
+	if (crewIDs[2] == -1)
+	{
+		cout << "Not enough cabin members avilable at this time." << endl << endl;
+		crew.fixPilot(pilotID);
+		crew.fixCoPilot(coPilotID);
+		crew.fixCrew1(crewIDs[0]);
+		crew.fixCrew2(crewIDs[1]);
+		return;
+	}
+
+	if (tailNum == "none")
+	{
+		cout << "No planes avilable at this time." << endl << endl;
+		planes.fixPlane(tailNum);
+		crew.fixPilot(pilotID);
+		crew.fixCoPilot(coPilotID);
+		crew.fixCrew1(crewIDs[0]);
+		crew.fixCrew1(crewIDs[1]);
+		crew.fixCrew3(crewIDs[2]);
+		return;
+	}
 
 	/*cout << "Enter the year of the flight (1 - 12):";
 	cin >> year;
@@ -88,7 +113,7 @@ void Flights::addFlight()
 	cout << "Enter status of flight (active, canceled, completed):";
 	cin >> fStatus;
 
-	Flight tmpFlight(flightID, tailNum, pilotID, coPilotID, -1, -1, -1, -1, -1, sAP, eAP, numPassengers);
+	Flight tmpFlight(flightID, tailNum, pilotID, coPilotID, crewIDs[0], crewIDs[1], crewIDs[2], -1, -1, sAP, eAP, numPassengers);
 
 	tmpFlight.SetStatus(fStatus);
 
@@ -99,11 +124,14 @@ void Flights::addFlight()
 	cout << "Flight added" << endl;
 }
 
-/*void Flights::editFlight()
+void Flights::editFlight()
 {
 	int fID;
 	string newTN;
-	string newJob;
+	int newPID;
+	int whichCabin = -1;
+	string newSA;
+	int newPassengers = -1;
 	string newStatus;
 	int choice = 0;
 
@@ -124,8 +152,9 @@ void Flights::addFlight()
 		cout << "5 - Start time" << endl;
 		cout << "6 - End time" << endl;
 		cout << "7 - Starting airport" << endl;
-		cout << "8 - Number of passengers" << endl;
-		cout << "9 - Status of flight" << endl;
+		cout << "8 - Ending airport" << endl;
+		cout << "9 - Number of passengers" << endl;
+		cout << "10 - Status of flight" << endl;
 
 		cout << "Enter choice:";
 		cin >> choice;
@@ -137,27 +166,145 @@ void Flights::addFlight()
 			cin >> newTN;
 			cin.ignore();
 
-			if (planes.searchPlane(newTN) != -1)
+			if (planes.searchPlane(newTN) == -1)
 			{
-				planes.[searchPlane(flightList[index].GetPlaneID())].SetStatus;
-				flightList[index].fixPlane
-				flightList[index].SetPlaneID
+				cout << "Plane does not exist." << endl;
+				break;
 			}
-			crewList[index].SetName(newName);
-			cout << "Name has been updated" << endl;
+
+			flightList[index].SetPlaneID(newTN);
+			cout << "Plane tail number has been updated" << endl;
 			break;
+
 		case 2:
-			cout << "Enter new job (pilot, copilot, cabin):";
-			cin >> newJob;
-			crewList[index].SetJob(newJob);
-			cout << "Job has been updated" << endl;
+			cout << "Enter new pilot ID";
+			cin >> newPID;
+
+			if (crew.searchCrew(newPID) == -1)
+			{
+				cout << "Pilot does not exist." << endl;
+				break;
+			}
+
+			if (crew.getCrewStatus(newPID) != "pilot")
+			{
+				cout << "Not a pilot." << endl;
+				break;
+			}
+
+			flightList[index].SetPilotID(newPID);
+			cout << "Pilot ID has been updated" << endl;
 			break;
+
 		case 3:
-			cout << "Enter new status of crew member (available, leave, sick):";
+			cout << "Enter new copilot ID";
+			cin >> newPID;
+
+			if (crew.searchCrew(newPID) == -1)
+			{
+				cout << "coPilot does not exist." << endl;
+				break;
+			}
+
+			if (crew.getCrewStatus(newPID) != "copilot")
+			{
+				cout << "Not a copilot." << endl;
+				break;
+			}
+
+			flightList[index].SetCoPilotID(newPID);
+			cout << "coPilot ID has been updated" << endl;
+			break;
+
+		case 4:
+			cout << "Which cabin member to change (1, 2, 3):";
+			cin >> whichCabin;
+
+			cout << "Enter new cabin member ID";
+			cin >> newPID;
+
+			if (crew.searchCrew(newPID) == -1)
+			{
+				cout << "cabin member does not exist." << endl;
+				break;
+			}
+
+			if (crew.getCrewStatus(newPID) != "cabin")
+			{
+				cout << "Not a cabin member." << endl;
+				break;
+			}
+
+			switch (whichCabin)
+			{
+			case 1:
+				flightList[index].SetCrew1ID(newPID);
+				break;
+			case 2:
+				flightList[index].SetCrew2ID(newPID);
+				break;
+			case 3:
+				flightList[index].SetCrew3ID(newPID);
+				break;
+			default:
+				cout << "Not a valid cabin member to edit. Try again (1, 2, 3):";
+				cin >> whichCabin;
+			}
+
+			cout << "coPilot ID has been updated." << endl;
+			break;
+
+		case 5:
+			// New start time
+			break;
+
+		case 6:
+			// New end time
+			break;
+
+		case 7:
+			cout << "Enter new starting airport 3 letter code:";
+			cin >> newSA;
+			cin.ignore();
+
+			flightList[index].SetStartPort(newSA);
+			cout << "Starting airport has been updated." << endl;
+			break;
+
+		case 8:
+			cout << "Enter new ending airport 3 letter code:";
+			cin >> newSA;
+			cin.ignore();
+
+			flightList[index].SetStartPort(newSA);
+			cout << "Ending airport has been updated." << endl;
+			break;
+
+		case 9:
+			cout << "Enter new number of passengers:" << endl;
+			cin >> newPassengers;
+
+			while (newPassengers > planes.getSeat(flightList[index].GetPlaneID()))
+			{
+				cout << "Number of passengers (" << newPassengers << ") exceeds number of seats (" << planes.getSeat(flightList[index].GetPlaneID()) << ")" << endl;
+				cout << "Enter new number of passengers:";
+				cin >> newPassengers;
+				cin.ignore();
+			}
+
+			flightList[index].SetNumPassengers(newPassengers);
+			cout << "Number of passengers has been updated." << endl;
+			break;
+
+		case 10:
+			cout << "Enter new status of flight (active, cancelled, completed):";
 			cin >> newStatus;
-			crewList[index].SetStatus(newStatus);
+			cin.ignore();
+
+			flightList[index].SetStatus(newStatus);
 			cout << "Status has been updated" << endl;
 			break;
+
 		default:
 			cout << "Not a valid option. Try again." << endl;
 			cout << "Enter choice:";
@@ -167,10 +314,10 @@ void Flights::addFlight()
 	}
 	else
 	{
-		cout << "Crew member can not be found" << endl;
+		cout << "Flight can not be found" << endl;
 		return;
 	}
-}*/
+}
 
 int Flights::searchFlight(int fID)
 {
@@ -425,4 +572,16 @@ void Flights::printSomeFlights()
 	} while (choice1 != 1);
 
 	return;
+}
+
+void Flights::deleteFinishedFlights()
+{
+	for (int i = 0; i < numFlights; i++)
+	{
+		if (flightList[i].GetStatus() != "active")
+		{
+			flightList.erase(flightList.begin() + i);
+			numFlights--;
+		}
+	}
 }
